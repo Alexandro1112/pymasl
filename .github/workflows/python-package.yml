@@ -13,7 +13,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    platform: MacOS
     strategy:
       fail-fast: false
       matrix:
