@@ -1,0 +1,22 @@
+
+"""Collection of icons."""
+
+WARNING_ICON = 'warning'
+CHECK_MARK_ICON = 'check_mark'
+SECURITY_ICON = 'security'
+DOCUMENT_ICON = 'document'
+USER_ICON = 'user'
+CRAYONS_ICON = 'crayons'
+TOOLBAR_ICON = 'toolbar'
+INFO_ICON = 'info'
+COMPUTER_ICON = 'computer'
+CAMERA_ICON = 'camera'
+HOME_ICON = 'home'
+TRASH_ICON = 'trash'
+NETWORK_ICON = 'network'
+COLOR_ICON = 'color'
+STOP_ICON = 'stop'
+FOLDER_ICON = 'folder'
+SYS_ICON = 'sys'
+ADVANCE_ICON = 'advance'
+GLASS_ICON = 'glass'
