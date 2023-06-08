@@ -14,7 +14,7 @@ class Alert:
                                                                  COLOR_ICON, CRAYONS_ICON, DOCUMENT_ICON, FOLDER_ICON,
                                                                  HOME_ICON, NETWORK_ICON, TOOLBAR_ICON, USER_ICON,
                                                                  COMPUTER_ICON, CHECK_MARK_ICON],
-                     buttons: [tuple, list, str]):
+                                                                 buttons: [tuple, list, str]):
         """Create Alert instance."""
         self.buttons = buttons
 
@@ -196,6 +196,7 @@ class Alert:
     def send(self):
         """Necessary to call."""
         self.runner = self.alert.runModal()
+        return self 
 
     @property
     def pressed_button(self):
