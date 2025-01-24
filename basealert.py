@@ -36,12 +36,14 @@ class Alert:
             i = buttons
             self.alert.addButtonWithTitle_(i)
         else:
-
+            pool = AppKit.NSAutoreleasePool.alloc()
+            pool.init()
             for i in buttons:
                 self.alert.addButtonWithTitle_(i)
                 for j in range(len(buttons)):
                     for b in buttons:
-                        self.dict_btn.update({j:b})
+                        self.dict_btn.update({j: b})
+            del pool
 
         try:
             if icon in styles.keys():
@@ -161,6 +163,7 @@ class Alert:
         self.alert.setAccessoryView_(self.radio)
 
 
+
     @property
     def entry_text(self):
         try:
@@ -217,6 +220,8 @@ class Alert:
         :param args: arguments which method are accept.
         :return: _out_ref
         """
+        pool = AppKit.NSAutoreleasePool.alloc()
+        pool.init()
         if args is None:
             args = []
         fragment = eval(f'self.alert.%s' % method)
@@ -233,20 +238,9 @@ class Alert:
 
         _out_ref = eval(_method % (method, *args))
         warnings.simplefilter('ignore', DeprecationWarning)
+        del pool
         return _out_ref
 
     def send(self):
         self.runner = self.alert.runModal()
-
-
-
-
-
-
-
-
-
-
-
-
 
