@@ -1,4 +1,4 @@
-
+import AppKit
 """Collection of icons."""
 
 WARNING_ICON = 'warning'
@@ -20,3 +20,25 @@ FOLDER_ICON = 'folder'
 SYS_ICON = 'sys'
 ADVANCE_ICON = 'advance'
 GLASS_ICON = 'glass'
+
+styles = {
+                'warning': AppKit.NSImage.imageNamed_('NSCaution'),
+                'check_mark': AppKit.NSImage.imageNamed_('NSMenuOnStateTemplate'),
+                'security': AppKit.NSImage.imageNamed_('NSSecurity'),
+                'document': AppKit.NSImage.imageNamed_('NSMultipleDocuments'),
+                'user': AppKit.NSImage.imageNamed_('NSUser'),
+                'crayons': AppKit.NSImage.imageNamed_('NSColorPickerCrayon'),
+                'toolbar': AppKit.NSImage.imageNamed_('NSToolbarCustomizeToolbarItemImage'),
+                'info': AppKit.NSImage.imageNamed_('NSInfo'),
+                'camera': AppKit.NSImage.imageNamed_('NSTouchBarCommunicationVideoTemplate'),
+                'home': AppKit.NSImage.imageNamed_('NSHomeTemplate'),
+                'trash': AppKit.NSImage.imageNamed_('NSTrashFull'),
+                'network': AppKit.NSImage.imageNamed_('NSNetwork'),
+                'color': AppKit.NSImage.imageNamed_('NSColumnViewTemplate'),
+                'stop': AppKit.NSImage.imageNamed_('NSStopProgressTemplate'),
+                'folder': AppKit.NSImage.imageNamed_('NSFolder'),
+                'sys': AppKit.NSImage.imageNamed_('NSPreferencesGeneral'),
+                'computer':  AppKit.NSImage.imageNamed_('NSComputer'),
+                'advance': AppKit.NSImage.imageNamed_('NSAdvanced'),
+                'glass': AppKit.NSImage.imageNamed_('NSSmallMagnifyingGlass'),
+            }
