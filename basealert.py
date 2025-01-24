@@ -1,13 +1,14 @@
 from .constants import *
-import objc
 import AppKit
 import CoreText
+from inspect import signature
+import warnings
 
 
 class Alert:
 
     def __str__(self):
-        return f'<{Alert.__name__} object at 0x10cc92910>'
+        return AppKit.NSAlert
 
     def list_available_fonts(self):
         """Return all available fonts on current machine"""
@@ -17,27 +18,30 @@ class Alert:
             list_fonts.append(font)
         return list_fonts
 
-    @objc._objc.python_method
     def create_alert(self, title, message, width, height, icon, buttons: [tuple, list, str]):
         """Create Alert instance."""
+
         self.buttons = buttons
         self.alert = AppKit.NSAlert.alloc().init()
         self.alert.setShowsSuppressionButton_(icon)
         icn = AppKit.NSImage.alloc().initWithContentsOfFile_(icon)
         self.alert.setInformativeText_(message)
-        self.alert.setAccessoryView_(AppKit.NSView.alloc().initWithFrame_(AppKit.NSMakeRect(0, 0, width, height)))
-
+        self.alert.setAccessoryView_(AppKit.NSView.alloc().
+                                     initWithFrame_(AppKit.NSMakeRect(0, 0, width, height)))
         self.alert.setMessageText_(title)
-
         self.dict_btn = {}
+
         if isinstance(buttons, str):
+            print(1)
             i = buttons
             self.alert.addButtonWithTitle_(i)
         else:
+
             for i in buttons:
                 self.alert.addButtonWithTitle_(i)
                 for j in range(len(buttons)):
-                    self.dict_btn = buttons
+                    for b in buttons:
+                        self.dict_btn.update({j:b})
 
         try:
             if icon in styles.keys():
@@ -46,13 +50,17 @@ class Alert:
                 self.alert.setIcon_(icn)
         except KeyError:  # If ``icon`` custom image.
             self.alert.setIcon_(icn)
+        finally:
+            return self
+
+
 
     def add_entry(self, width, height,
                   border, font, font_size,
                   color, text_color):
         """Add entry widget to alert."""
 
-        self.text_field = AppKit.NSTextField.alloc().initWithFrame_(((0, 0), (width, height)))
+        self.text_field = AppKit.NSTextField.alloc().initWithFrame_((AppKit.CGRect(0, 0), (width, height)))
         if border is not None:
             self.text_field.setCornerRadius_(border)
         if text_color is not None:
@@ -61,11 +69,13 @@ class Alert:
         if font is not None and font_size is not None:
             if font in self.list_available_fonts():
                 self.text_field.setFont_(AppKit.NSFont.fontWithName_size_(font, font_size))
-            raise NameError('Font not supported on device or not found')
+            else:
+                raise NameError('Font not supported on device or not found')
         if color is not None:
             color = eval('AppKit.NSColor.%sColor()' % color.lower())  # Strange name function in
             self.text_field.setBackgroundColor_(color)
         self.alert.setAccessoryView_(self.text_field)  # display widget on alert.
+
 
     def add_slider(self, color, width,
                    height,
@@ -75,7 +85,7 @@ class Alert:
                    ):
         """Add slider widget to alert."""
 
-        self.popup_button = AppKit.NSSlider.alloc().initWithFrame_(((0, 0), (width, height)))
+        self.popup_button = AppKit.NSSlider.alloc().initWithFrame_((AppKit.CGRect(0, 0), (width, height)))
         if color is not None:
             bg = eval('AppKit.NSColor.%sColor()' % color.lower())
             self.popup_button.setBackgroundColor_(bg)
@@ -98,7 +108,7 @@ class Alert:
                          border, opacity: bool):
         """Add popup button to alert."""
         self.popup_button_options = options
-        self.pop_button = AppKit.NSPopUpButton.alloc().initWithFrame_(((0, 0),
+        self.pop_button = AppKit.NSPopUpButton.alloc().initWithFrame_((AppKit.CGRect(0, 0),
                                                                        (width,
                                                                         height)))
 
@@ -117,6 +127,7 @@ class Alert:
             self.pop_button.setControlSize_(controller_size)
         if opacity is not None:
             self.pop_button.setTransparent_(int(opacity))
+
         self.alert.setAccessoryView_(self.pop_button)
 
     def add_radio_button(self, options, width, height,
@@ -143,10 +154,12 @@ class Alert:
             self.radio.setCornerRadius_(border)
         if font is not None and font_size is not None:
             if font in self.list_available_fonts():
-                self.text_field.setFont_(AppKit.NSFont.fontWithName_size_(font, font_size))
-            raise NameError('Font not supported on device or not found')
+                self.radio.setFont_(AppKit.NSFont.fontWithName_size_(font, font_size))
+            else:
+                raise NameError('Font not supported on device or not found')
 
         self.alert.setAccessoryView_(self.radio)
+
 
     @property
     def entry_text(self):
@@ -182,14 +195,58 @@ class Alert:
             raise AttributeError(f'Make object instance {self.add_radio_button.__name__} for get button state.')
 
 
+
+
     @property
     def pressed_button(self):
         try:
             return self.dict_btn[self.runner - 1000],  # return button name instead index of pressed button
         except KeyError:  # If in alert only one button
             return self.buttons
+        except AttributeError:
+            raise Exception(f'call {repr(self.send.__name__)} method.')
+
+    def custom_method(self, method, args):
+
+        """
+        The function allows you to add various attributes to NSAlert and assign arguments, then enable.
+        Example: custom_method('setAlertStyle_', ['AppKit.NSCriticalAlertStyle']),
+        it replaces self.alert.setAlertStyle_(AppKit.NSCriticalAlertStyle).
+
+        :param method: name of method of you require to add.
+        :param args: arguments which method are accept.
+        :return: _out_ref
+        """
+        if args is None:
+            args = []
+        fragment = eval(f'self.alert.%s' % method)
+        _signature = signature(fragment).parameters
+        length = len(_signature)
+
+        if len(args) != length:
+            raise Exception(f'Wrong arguments. Need {length} arguments, got {len(args)}')
+
+        _method = f'self.alert.%s('
+        for i in range(len(args)):
+            _method += '%s, '
+        _method += ')'
+
+        _out_ref = eval(_method % (method, *args))
+        warnings.simplefilter('ignore', DeprecationWarning)
+        return _out_ref
 
     def send(self):
         self.runner = self.alert.runModal()
+
+
+
+
+
+
+
+
+
+
+
 
 
