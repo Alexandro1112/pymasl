@@ -10,7 +10,14 @@ class Alert:
     def __str__(self):
         return AppKit.NSAlert
 
-    def list_available_fonts(self):
+    def __init__(self):
+        self.runner = 0
+        self.dict_btn = {}
+        self.buttons = None
+        self.alert = AppKit.NSAlert.alloc().init()
+
+    @staticmethod
+    def list_available_fonts():
         """Return all available fonts on current machine"""
         font_descriptors = CoreText.CTFontManagerCopyAvailableFontFamilyNames()
         list_fonts = []
@@ -20,31 +27,23 @@ class Alert:
 
     def create_alert(self, title, message, width, height, icon, buttons: [tuple, list, str]):
         """Create Alert instance."""
-
         self.buttons = buttons
-        self.alert = AppKit.NSAlert.alloc().init()
         self.alert.setShowsSuppressionButton_(icon)
         icn = AppKit.NSImage.alloc().initWithContentsOfFile_(icon)
         self.alert.setInformativeText_(message)
         self.alert.setAccessoryView_(AppKit.NSView.alloc().
                                      initWithFrame_(AppKit.NSMakeRect(0, 0, width, height)))
         self.alert.setMessageText_(title)
-        self.dict_btn = {}
-
         if isinstance(buttons, str):
-            print(1)
-            i = buttons
-            self.alert.addButtonWithTitle_(i)
+
+            self.alert.addButtonWithTitle_(buttons)
         else:
             pool = AppKit.NSAutoreleasePool.alloc()
             pool.init()
             for i in buttons:
                 self.alert.addButtonWithTitle_(i)
-                for j in range(len(buttons)):
-                    for b in buttons:
-                        self.dict_btn.update({j: b})
+                self.dict_btn = {index: name for index, name in enumerate(buttons)}
             del pool
-
         try:
             if icon in styles.keys():
                 self.alert.setIcon_(styles[icon])
@@ -54,8 +53,6 @@ class Alert:
             self.alert.setIcon_(icn)
         finally:
             return self
-
-
 
     def add_entry(self, width, height,
                   border, font, font_size,
@@ -77,7 +74,6 @@ class Alert:
             color = eval('AppKit.NSColor.%sColor()' % color.lower())  # Strange name function in
             self.text_field.setBackgroundColor_(color)
         self.alert.setAccessoryView_(self.text_field)  # display widget on alert.
-
 
     def add_slider(self, color, width,
                    height,
@@ -112,8 +108,7 @@ class Alert:
         self.popup_button_options = options
         self.pop_button = AppKit.NSPopUpButton.alloc().initWithFrame_((AppKit.CGRect(0, 0),
                                                                        (width,
-                                                                        height)))
-
+                                                                     height)))
         if isinstance(options, str):
             self.pop_button.addItemWithTitle_(options)
         else:
@@ -162,8 +157,6 @@ class Alert:
 
         self.alert.setAccessoryView_(self.radio)
 
-
-
     @property
     def entry_text(self):
         try:
@@ -197,13 +190,10 @@ class Alert:
         except AttributeError:
             raise AttributeError(f'Make object instance {self.add_radio_button.__name__} for get button state.')
 
-
-
-
     @property
     def pressed_button(self):
         try:
-            return self.dict_btn[self.runner - 1000],  # return button name instead index of pressed button
+            return self.dict_btn[self.runner - 1000] # return button name instead index of pressed button
         except KeyError:  # If in alert only one button
             return self.buttons
         except AttributeError:
@@ -217,7 +207,7 @@ class Alert:
         it replaces self.alert.setAlertStyle_(AppKit.NSCriticalAlertStyle).
 
         :param method: name of method of you require to add.
-        :param args: arguments which method are accept.
+        :param args: arguments which method are accept. Assign None if function don't accept any arguments
         :return: _out_ref
         """
         pool = AppKit.NSAutoreleasePool.alloc()
@@ -226,7 +216,7 @@ class Alert:
             args = []
         fragment = eval(f'self.alert.%s' % method)
         _signature = signature(fragment).parameters
-        length = len(_signature)
+        length = len(_signature) # return length of dict equals number of arguments
 
         if len(args) != length:
             raise Exception(f'Wrong arguments. Need {length} arguments, got {len(args)}')
