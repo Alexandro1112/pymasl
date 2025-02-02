@@ -26,9 +26,6 @@ Here's a simple example of how to create a notification using the library:
 from pymasl.basealert import Alert
 import AppKit
 
-# Initialize the Alert sender
-sender = Alert()
-
 # Define the alert parameters
 
 title = 'My new alert'
@@ -36,8 +33,15 @@ message = 'I added to this alert icon'
 icon = 'warning'  # You can use predefined icons
 buttons = ['OK', 'NO']
 
-# Create and configure the alert
-sender.create_alert(title=title, message=message, icon=icon, buttons=buttons, width=30, height=100)
+# Initialize the Alert sender
+sender = Alert(title=title,
+    message=message,
+    icon=icon,
+    buttons=buttons,
+    width=30,
+    height=100)
+
+
 
 # Optionally customize the alert with additional features
 sender.custom_method('showsSuppressionButton', None)  # Example of adding a suppression button
@@ -71,6 +75,27 @@ print(sender.pressed_button, sender.entry_text)
 
 8. Capturing User Interaction: After the alert is closed, you can access which button was pressed and any text entered in the input field through pressed_button and entry_text.
 
+
+Create Notification. 
+```
+from pymasl.basenotify import Notify
+
+
+title = 'My new alert'
+message = 'I added to this alert icon'
+icon = 'warning'  # You can use predefined icons
+buttons = ['OK', 'NO']
+
+notify = Notify(
+   title=title,
+   subtitle=message,
+   image=icon,
+
+)
+
+
+notify.send()
+```
 ▎Documentation
 
 For more detailed information on all available methods and options, please refer to the Documentation.
