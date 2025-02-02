@@ -1,3 +1,5 @@
+import time
+
 from .constants import *
 import AppKit
 import CoreText
@@ -6,15 +8,6 @@ import warnings
 
 
 class Alert:
-
-    def __str__(self):
-        return AppKit.NSAlert
-
-    def __init__(self):
-        self.runner = 0
-        self.dict_btn = {}
-        self.buttons = None
-        self.alert = AppKit.NSAlert.alloc().init()
 
     @staticmethod
     def list_available_fonts():
@@ -25,24 +18,25 @@ class Alert:
             list_fonts.append(font)
         return list_fonts
 
-    def create_alert(self, title, message, width, height, icon, buttons: [tuple, list, str]):
+    def __init__(self, title, message, width, height, icon, buttons: [tuple, list, str]):
         """Create Alert instance."""
+        self.dict_btn = {}
+        self.alert = AppKit.NSAlert.alloc().init()
         self.buttons = buttons
-        self.alert.setShowsSuppressionButton_(icon)
+        self.icon = icon
         icn = AppKit.NSImage.alloc().initWithContentsOfFile_(icon)
         self.alert.setInformativeText_(message)
         self.alert.setAccessoryView_(AppKit.NSView.alloc().
-                                     initWithFrame_(AppKit.NSMakeRect(0, 0, width, height)))
+                                     initWithFrame_(AppKit.NSMakeRect(00, 00, width, height)))
         self.alert.setMessageText_(title)
         if isinstance(buttons, str):
-
             self.alert.addButtonWithTitle_(buttons)
         else:
             pool = AppKit.NSAutoreleasePool.alloc()
             pool.init()
             for i in buttons:
                 self.alert.addButtonWithTitle_(i)
-                self.dict_btn = {index: name for index, name in enumerate(buttons)}
+                self.dict_btn.update({index: name for index, name in enumerate(buttons)})
             del pool
         try:
             if icon in styles.keys():
@@ -51,8 +45,6 @@ class Alert:
                 self.alert.setIcon_(icn)
         except KeyError:  # If ``icon`` custom image.
             self.alert.setIcon_(icn)
-        finally:
-            return self
 
     def add_entry(self, width, height,
                   border, font, font_size,
@@ -107,8 +99,7 @@ class Alert:
         """Add popup button to alert."""
         self.popup_button_options = options
         self.pop_button = AppKit.NSPopUpButton.alloc().initWithFrame_((AppKit.CGRect(0, 0),
-                                                                       (width,
-                                                                     height)))
+                                                                       (width, height)))
         if isinstance(options, str):
             self.pop_button.addItemWithTitle_(options)
         else:
@@ -132,7 +123,7 @@ class Alert:
                          font,  font_size, title,
                          button_state: [0, 1]):
 
-        self.radio = AppKit.NSButton.alloc().initWithFrame_(((0, 0), (width, height)))
+        self.radio = AppKit.NSButton.alloc().initWithFrame_((AppKit.CGRect(0, 0), (width, height)))
         self.radio.setButtonType_(AppKit.NSSwitchButton)
 
         if isinstance(options, str):
@@ -203,12 +194,16 @@ class Alert:
 
         """
         The function allows you to add various attributes to NSAlert and assign arguments, then enable.
-        Example: custom_method('setAlertStyle_', ['AppKit.NSCriticalAlertStyle']),
-        it replaces self.alert.setAlertStyle_(AppKit.NSCriticalAlertStyle).
+        Example: ``custom_method('setAlertStyle_', ['AppKit.NSCriticalAlertStyle'])``,
+        it replaces:
+
+        ``alert = NSAlert.alloc().init()
+        alert.setAlertStyle_(AppKit.NSCriticalAlertStyle).``
 
         :param method: name of method of you require to add.
-        :param args: arguments which method are accept. Assign None if function don't accept any arguments
-        :return: _out_ref
+        :param args: arguments which method are accept. Assign None if function don't accept any arguments.
+         Pass ``None`` if method do not accept any arguments.
+        :return: status of executed function or value.
         """
         pool = AppKit.NSAutoreleasePool.alloc()
         pool.init()
@@ -218,7 +213,7 @@ class Alert:
         _signature = signature(fragment).parameters
         length = len(_signature) # return length of dict equals number of arguments
 
-        if len(args) != length:
+        if len(args) != length or method not in dir(self.alert):
             raise Exception(f'Wrong arguments. Need {length} arguments, got {len(args)}')
 
         _method = f'self.alert.%s('
@@ -231,6 +226,15 @@ class Alert:
         del pool
         return _out_ref
 
-    def send(self):
+    def send(self, interval=0):
+        time.sleep(interval)
         self.runner = self.alert.runModal()
+
+    def __getattribute__(self, name):
+        if name == 'text_filed' or name == 'pop_button' or name == 'radio' or name == 'popup_button':
+            raise ValueError
+        return super().__getattribute__(name)
+
+
+
 
