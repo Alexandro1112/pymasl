@@ -1,12 +1,24 @@
 import platform
-import sys
+
+from threading import Thread
+from .basealert import Alert
+from .basenotify import Notify
+__all__ = [Alert, Notify]
 
 platform = platform.platform()
-if 'Darwin' in platform or 'macOS' in platform:
-    from .basealert import Alert  # success.
-    from .constants import *
 
-elif sys.implementation.version.major > 4:
-    raise Exception(f'No has library pymas for python {sys.implementation.version.major} version.')
+if 'Darwin' in platform or 'macOS' in platform:
+    pass
 else:
-    raise NotImplementedError(f'No implement pymac for platform {platform}.')
+    raise NotImplementedError(f'No implement pymasl for platform {platform}.')
+
+
+def send_together(function, function_2):
+    if hasattr(function, 'send') and hasattr(function_2, 'send'):
+        try:
+            f1, f2 = Thread(target=function.send()), Thread(target=function_2.send())
+            f1.run(), f2.run()
+            return
+        except Exception:
+            return None
+
